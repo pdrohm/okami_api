@@ -6,6 +6,10 @@
   "author": "Pedro H. Marques <opedrohenriquemarques@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "knex": "^3.1.0",
+    "pg": "^8.11.3",
+    "sequelize": "^6.37.1"
   }
 }

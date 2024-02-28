@@ -1,14 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const studentRoutes = require("./src/routes/studentRoutes");
-const paymentRoutes = require("./src/routes/paymentRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
 app.use("/students", studentRoutes);
-app.use("/payments", paymentRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

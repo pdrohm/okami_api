@@ -1,15 +1,14 @@
 // src/controllers/studentController.js
 
-const { pool } = require("../config/database");
+const knex = require("../config/database");
 
 const createStudent = async (req, res) => {
-  const { name, age } = req.body;
+  const { name, birthday, email } = req.body;
   try {
-    const result = await pool.query(
-      "INSERT INTO students (name, age) VALUES ($1, $2) RETURNING *",
-      [name, age]
-    );
-    res.status(201).json(result.rows[0]);
+    const result = await knex("students")
+      .insert({ name, birthday, email })
+      .returning("*");
+    res.status(201).json(result[0]);
   } catch (err) {
     console.error("Erro ao criar estudante:", err);
     res.status(500).send("Erro ao criar estudante");
@@ -18,8 +17,8 @@ const createStudent = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM students");
-    res.json(result.rows);
+    const students = await knex("students").select("*");
+    res.json(students);
   } catch (err) {
     console.error("Erro ao obter estudantes:", err);
     res.status(500).send("Erro ao obter estudantes");
@@ -29,13 +28,11 @@ const getAllStudents = async (req, res) => {
 const getStudentById = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query("SELECT * FROM students WHERE id = $1", [
-      id,
-    ]);
-    if (result.rows.length === 0) {
+    const student = await knex("students").select("*").where("id", id).first();
+    if (!student) {
       return res.status(404).send("Estudante não encontrado");
     }
-    res.json(result.rows[0]);
+    res.json(student);
   } catch (err) {
     console.error("Erro ao obter estudante por ID:", err);
     res.status(500).send("Erro ao obter estudante por ID");
@@ -44,16 +41,16 @@ const getStudentById = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   const { id } = req.params;
-  const { name, age } = req.body;
+  const { name, email, birthday } = req.body;
   try {
-    const result = await pool.query(
-      "UPDATE students SET name = $1, age = $2 WHERE id = $3 RETURNING *",
-      [name, age, id]
-    );
-    if (result.rows.length === 0) {
+    const result = await knex("students")
+      .where("id", id)
+      .update({ name, email, birthday })
+      .returning("*");
+    if (result.length === 0) {
       return res.status(404).send("Estudante não encontrado");
     }
-    res.json(result.rows[0]);
+    res.json(result[0]);
   } catch (err) {
     console.error("Erro ao editar estudante:", err);
     res.status(500).send("Erro ao editar estudante");
@@ -63,11 +60,8 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "DELETE FROM students WHERE id = $1 RETURNING *",
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const result = await knex("students").where("id", id).del().returning("*");
+    if (result.length === 0) {
       return res.status(404).send("Estudante não encontrado");
     }
     res.json({ message: "Estudante excluído com sucesso" });
