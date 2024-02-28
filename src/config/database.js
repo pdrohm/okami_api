@@ -1,15 +1,15 @@
 // database.js
 
 const knex = require("knex");
+require("dotenv/config");
 
 const config = {
-  DATABASE_URL:
-    "postgres://okami:L7BzpoypoIUTbGbVAWcC7tKd1tHrk1hi@dpg-cnedt9ol5elc73docm0g-a.ohio-postgres.render.com/okami",
-  DB_HOST: "dpg-cnedt9ol5elc73docm0g-a.ohio-postgres.render.com",
-  DB_PORT: 5432,
-  DB_USER: "okami",
-  DB_NAME: "okami",
-  DB_PASSWORD: "L7BzpoypoIUTbGbVAWcC7tKd1tHrk1hi",
+  DATABASE_URL: process.env.DATABASE_URL,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_USER: process.env.DB_USER,
+  DB_NAME: process.env.DB_NAME,
+  DB_PASSWORD: process.env.DB_PASSWORD,
   DB_SSL: true,
 };
 
