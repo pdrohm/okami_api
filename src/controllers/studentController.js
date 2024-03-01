@@ -1,13 +1,51 @@
-// src/controllers/studentController.js
-
 const knex = require("../config/database");
 
 const createStudent = async (req, res) => {
-  const { name, birthday, email } = req.body;
+  const {
+    name,
+    birthday,
+    email,
+    belt,
+    gender,
+    number,
+    legalGuardian,
+    obs,
+    address,
+    cep,
+    city,
+    country,
+    degree,
+    emergency_contact,
+    emergency_contact_number,
+    relation,
+    state,
+    weight,
+  } = req.body;
+
   try {
-    const result = await knex("student")
-      .insert({ name, birthday, email })
-      .returning("*");
+    const studentData = {
+      name: name || null,
+      birthday: birthday || null,
+      email: email || null,
+      belt: belt || null,
+      gender: gender || null,
+      number: number || null,
+      legal_guardian: legalGuardian || null,
+      obs: obs || null,
+      address: address || null,
+      cep: cep || null,
+      city: city || null,
+      country: country || null,
+      degree: degree || null,
+      emergency_contact: emergency_contact || null,
+      emergency_contact_number: emergency_contact_number || null,
+      relation: relation || null,
+      state: state || null,
+      weight: weight || null,
+    };
+
+    const result = await knex("student").insert(studentData).returning("*");
+
     res.status(201).json(result[0]);
   } catch (err) {
     console.error("Erro ao criar estudante:", err);
@@ -41,11 +79,49 @@ const getStudentById = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   const { id } = req.params;
-  const { name, email, birthday } = req.body;
+  const {
+    name,
+    email,
+    birthday,
+    belt,
+    gender,
+    number,
+    legalGuardian,
+    obs,
+    address,
+    cep,
+    city,
+    country,
+    degree,
+    emergency_contact,
+    emergency_contact_number,
+    relation,
+    state,
+    weight,
+  } = req.body;
   try {
     const result = await knex("student")
       .where("id", id)
-      .update({ name, email, birthday })
+      .update({
+        name,
+        email,
+        birthday,
+        belt,
+        gender,
+        number,
+        legal_guardian: legalGuardian,
+        obs,
+        address,
+        cep,
+        city,
+        country,
+        degree,
+        emergency_contact,
+        emergency_contact_number,
+        relation,
+        state,
+        weight,
+      })
       .returning("*");
     if (result.length === 0) {
       return res.status(404).send("Estudante não encontrado");
