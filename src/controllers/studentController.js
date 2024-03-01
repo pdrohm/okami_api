@@ -21,29 +21,31 @@ const createStudent = async (req, res) => {
     state,
     weight,
   } = req.body;
+
   try {
-    const result = await knex("student")
-      .insert({
-        name,
-        birthday,
-        email,
-        belt,
-        gender,
-        number,
-        legal_guardian: legalGuardian,
-        obs,
-        address,
-        cep,
-        city,
-        country,
-        degree,
-        emergency_contact,
-        emergency_contact_number,
-        relation,
-        state,
-        weight,
-      })
-      .returning("*");
+    const studentData = {
+      name: name || null,
+      birthday: birthday || null,
+      email: email || null,
+      belt: belt || null,
+      gender: gender || null,
+      number: number || null,
+      legal_guardian: legalGuardian || null,
+      obs: obs || null,
+      address: address || null,
+      cep: cep || null,
+      city: city || null,
+      country: country || null,
+      degree: degree || null,
+      emergency_contact: emergency_contact || null,
+      emergency_contact_number: emergency_contact_number || null,
+      relation: relation || null,
+      state: state || null,
+      weight: weight || null,
+    };
+
+    const result = await knex("student").insert(studentData).returning("*");
+
     res.status(201).json(result[0]);
   } catch (err) {
     console.error("Erro ao criar estudante:", err);
