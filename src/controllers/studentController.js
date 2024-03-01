@@ -5,7 +5,7 @@ const knex = require("../config/database");
 const createStudent = async (req, res) => {
   const { name, birthday, email } = req.body;
   try {
-    const result = await knex("students")
+    const result = await knex("student")
       .insert({ name, birthday, email })
       .returning("*");
     res.status(201).json(result[0]);
@@ -17,7 +17,7 @@ const createStudent = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
   try {
-    const students = await knex("students").select("*");
+    const students = await knex("student").select("*");
     res.json(students);
   } catch (err) {
     console.error("Erro ao obter estudantes:", err);
@@ -28,7 +28,7 @@ const getAllStudents = async (req, res) => {
 const getStudentById = async (req, res) => {
   const { id } = req.params;
   try {
-    const student = await knex("students").select("*").where("id", id).first();
+    const student = await knex("student").select("*").where("id", id).first();
     if (!student) {
       return res.status(404).send("Estudante não encontrado");
     }
@@ -43,7 +43,7 @@ const updateStudent = async (req, res) => {
   const { id } = req.params;
   const { name, email, birthday } = req.body;
   try {
-    const result = await knex("students")
+    const result = await knex("student")
       .where("id", id)
       .update({ name, email, birthday })
       .returning("*");
@@ -60,7 +60,7 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await knex("students").where("id", id).del().returning("*");
+    const result = await knex("student").where("id", id).del().returning("*");
     if (result.length === 0) {
       return res.status(404).send("Estudante não encontrado");
     }

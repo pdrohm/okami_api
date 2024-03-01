@@ -18,7 +18,7 @@ class Student {
     ];
     try {
       const { rows } = await pool.query(query, values);
-      return new Student(rows[0]); // Retornar uma instância de Student
+      return new Student(rows[0]);
     } catch (error) {
       console.error("Erro ao criar estudante:", error);
       throw error;
