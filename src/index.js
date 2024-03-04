@@ -1,15 +1,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require("cors"); // Importe o pacote cors
+const cors = require("cors");
 const studentRoutes = require("./routes/studentRoutes");
+const authRoutes = require("./routes/authRoutes");
+const authenticateToken = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
 app.use(cors());
 
-app.use("/students", studentRoutes);
+app.use("/students", authenticateToken, studentRoutes);
+
+app.use("/auth", authRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

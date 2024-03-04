@@ -55,7 +55,14 @@ const createStudent = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
   try {
-    const students = await knex("student").select("*");
+    const students = await knex("student")
+      .select(
+        "student.*",
+        "belt.belt_description as belt_description",
+        "degree.degree_description as degree_description"
+      )
+      .leftJoin("belt", "student.belt", "belt.id_belt")
+      .leftJoin("degree", "student.degree", "degree.id_degree");
     res.json(students);
   } catch (err) {
     console.error("Erro ao obter estudantes:", err);

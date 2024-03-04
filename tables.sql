@@ -57,3 +57,30 @@ INSERT INTO degree (id_degree, degree_description) VALUES
 (2, '2'),
 (3, '3'),
 (4, '4');
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE profiles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    profile_id INT REFERENCES profiles(id)
+);
+
+INSERT INTO profiles (id, name) VALUES 
+(1, 'jiujitsu'),
+(2, 'yoga'),
+(3, 'muaythai');
+
