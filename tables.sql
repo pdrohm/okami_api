@@ -31,7 +31,7 @@ CREATE TABLE student (
     weight DECIMAL(5, 2)
 );
 
-CREATE TABLE user (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE profile (
 
 CREATE TABLE user_profile (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES user(id),
+    user_id INT REFERENCES users(id),
     profile_id INT REFERENCES profile(id)
 );
 
