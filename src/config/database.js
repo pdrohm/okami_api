@@ -10,7 +10,6 @@ const config = {
   DB_USER: process.env.DB_USER,
   DB_NAME: process.env.DB_NAME,
   DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_SSL: false,
 };
 
 const pg = knex({
@@ -22,7 +21,7 @@ const pg = knex({
     user: config.DB_USER,
     database: config.DB_NAME,
     password: config.DB_PASSWORD,
-    ssl: false,
+    ssl: false
   },
 });
 

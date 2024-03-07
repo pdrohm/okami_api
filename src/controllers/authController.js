@@ -49,12 +49,12 @@ const loginUser = async (req, res) => {
       name: user.name,
     };
 
-    const userProfile = await knex("user_profiles")
+    const userProfile = await knex("user_profile")
       .where({ user_id: user.id })
       .first();
 
     if (userProfile) {
-      const profile = await knex("profiles")
+      const profile = await knex("profile")
         .where({ id: userProfile.profile_id })
         .first();
       tokenPayload.profile = profile;
