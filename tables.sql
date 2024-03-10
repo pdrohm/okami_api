@@ -22,6 +22,7 @@ CREATE TABLE student (
     address VARCHAR(255),
     cep VARCHAR(15),
     city VARCHAR(100),
+    code VARCHAR(4) UNIQUE NOT NULL,
     country VARCHAR(100),
     degree INTEGER REFERENCES degree(id_degree),
     emergency_contact VARCHAR(100),
@@ -52,6 +53,17 @@ CREATE TABLE user_profile (
     profile_id INT REFERENCES profile(id)
 );
 
+CREATE TABLE training (
+    id SERIAL PRIMARY KEY,
+    training_name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE attendance (
+      attendance_id SERIAL PRIMARY KEY,
+      student_id INTEGER REFERENCES student(id),
+      training_id INTEGER REFERENCES training(id),
+      checkin_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 
 INSERT INTO belt (id_belt, belt_description) VALUES 
 (1, 'Branca'),

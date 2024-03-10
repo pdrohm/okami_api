@@ -1,0 +1,83 @@
+const knex = require("../config/database");
+
+const createTraining = async (req, res) => {
+  const { training_name, schedule } = req.body;
+
+  try {
+    const trainingData = {
+      training_name: training_name || null,
+      schedule: schedule || null,
+    };
+
+    const result = await knex("training").insert(trainingData).returning("*");
+
+    res.status(201).json(result[0]);
+  } catch (err) {
+    console.error("Erro ao criar treino:", err);
+    res.status(500).send("Erro ao criar treino");
+  }
+};
+
+const getAllTrainings = async (req, res) => {
+  try {
+    const trainings = await knex("training").select("*");
+    res.json(trainings);
+  } catch (err) {
+    console.error("Erro ao obter treinos:", err);
+    res.status(500).send("Erro ao obter treinos");
+  }
+};
+
+const getTrainingById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const training = await knex("training").select("*").where("training_id", id).first();
+    if (!training) {
+      return res.status(404).send("Treino não encontrado");
+    }
+    res.json(training);
+  } catch (err) {
+    console.error("Erro ao obter treino por ID:", err);
+    res.status(500).send("Erro ao obter treino por ID");
+  }
+};
+
+const updateTraining = async (req, res) => {
+  const { id } = req.params;
+  const { training_name, schedule } = req.body;
+  try {
+    const result = await knex("training")
+      .where("training_id", id)
+      .update({ training_name, schedule })
+      .returning("*");
+    if (result.length === 0) {
+      return res.status(404).send("Treino não encontrado");
+    }
+    res.json(result[0]);
+  } catch (err) {
+    console.error("Erro ao editar treino:", err);
+    res.status(500).send("Erro ao editar treino");
+  }
+};
+
+const deleteTraining = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await knex("training").where("training_id", id).del().returning("*");
+    if (result.length === 0) {
+      return res.status(404).send("Treino não encontrado");
+    }
+    res.json({ message: "Treino excluído com sucesso" });
+  } catch (err) {
+    console.error("Erro ao excluir treino:", err);
+    res.status(500).send("Erro ao excluir treino");
+  }
+};
+
+module.exports = {
+  createTraining,
+  getAllTrainings,
+  getTrainingById,
+  updateTraining,
+  deleteTraining,
+};
