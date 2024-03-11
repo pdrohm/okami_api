@@ -1,11 +1,12 @@
 const knex = require("../config/database");
 
 const createTraining = async (req, res) => {
-  const { training_name } = req.body;
+  const { training_name, modality } = req.body;
 
   try {
     const trainingData = {
       training_name: training_name || null,
+      modality: modality || null
     };
 
     const result = await knex("training").insert(trainingData).returning("*");
