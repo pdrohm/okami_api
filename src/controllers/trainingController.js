@@ -56,11 +56,11 @@ const getTrainingById = async (req, res) => {
 
 const updateTraining = async (req, res) => {
   const { id } = req.params;
-  const { training_name } = req.body;
+  const { training_name, modality } = req.body;
   try {
     const result = await knex("training")
       .where("id", id)
-      .update({ training_name})
+      .update({ training_name, modality})
       .returning("*");
     if (result.length === 0) {
       return res.status(404).send("Treino não encontrado");
