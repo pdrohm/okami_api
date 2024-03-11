@@ -1,12 +1,11 @@
 const knex = require("../config/database");
 
 const createTraining = async (req, res) => {
-  const { training_name, schedule } = req.body;
+  const { training_name } = req.body;
 
   try {
     const trainingData = {
       training_name: training_name || null,
-      schedule: schedule || null,
     };
 
     const result = await knex("training").insert(trainingData).returning("*");
@@ -28,10 +27,23 @@ const getAllTrainings = async (req, res) => {
   }
 };
 
+const getAttendancesByTraining = async (req, res) => {
+  const { trainingId } = req.params;
+
+  try {
+    const attendances = await knex("attendance").select("*").where("id", trainingId);
+
+    res.json(attendances);
+  } catch (error) {
+    console.error("Erro ao obter presenças por treino:", error);
+    res.status(500).send("Erro ao obter presenças por treino");
+  }
+};
+
 const getTrainingById = async (req, res) => {
   const { id } = req.params;
   try {
-    const training = await knex("training").select("*").where("training_id", id).first();
+    const training = await knex("training").select("*").where("id", id).first();
     if (!training) {
       return res.status(404).send("Treino não encontrado");
     }
@@ -44,11 +56,11 @@ const getTrainingById = async (req, res) => {
 
 const updateTraining = async (req, res) => {
   const { id } = req.params;
-  const { training_name, schedule } = req.body;
+  const { training_name } = req.body;
   try {
     const result = await knex("training")
-      .where("training_id", id)
-      .update({ training_name, schedule })
+      .where("id", id)
+      .update({ training_name})
       .returning("*");
     if (result.length === 0) {
       return res.status(404).send("Treino não encontrado");
@@ -63,7 +75,7 @@ const updateTraining = async (req, res) => {
 const deleteTraining = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await knex("training").where("training_id", id).del().returning("*");
+    const result = await knex("training").where("id", id).del().returning("*");
     if (result.length === 0) {
       return res.status(404).send("Treino não encontrado");
     }
@@ -80,4 +92,5 @@ module.exports = {
   getTrainingById,
   updateTraining,
   deleteTraining,
+  getAttendancesByTraining
 };

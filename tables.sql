@@ -56,6 +56,8 @@ CREATE TABLE user_profile (
 CREATE TABLE training (
     id SERIAL PRIMARY KEY,
     training_name VARCHAR(100) NOT NULL
+    modality VARCHAR(100)
+
 );
 
 CREATE TABLE attendance (

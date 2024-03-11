@@ -9,6 +9,9 @@ router.post("/", trainingController.createTraining);
 
 router.get("/", trainingController.getAllTrainings);
 
+router.get("/:trainingId/attendances", trainingController.getAttendancesByTraining);
+
+
 router.get("/:id", trainingController.getTrainingById);
 
 router.put("/:id", trainingController.updateTraining);

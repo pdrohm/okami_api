@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const studentRoutes = require("./routes/studentRoutes");
 const trainingRoutes = require("./routes/trainingRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const authRoutes = require("./routes/authRoutes");
 const authenticateToken = require("./middleware/authMiddleware");
 const app = express();
@@ -14,6 +15,8 @@ app.use(cors());
 app.use("/students", authenticateToken, studentRoutes);
 
 app.use("/training", authenticateToken, trainingRoutes);
+
+app.use("/attendance", authenticateToken, attendanceRoutes);
 
 app.use("/auth", authRoutes);
 
