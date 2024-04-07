@@ -13,6 +13,7 @@ const createStudent = async (req, res) => {
     address,
     cep,
     city,
+    code,
     country,
     degree,
     emergency_contact,
@@ -35,6 +36,7 @@ const createStudent = async (req, res) => {
       address: address || null,
       cep: cep || null,
       city: city || null,
+      code: code || null,
       country: country || null,
       degree: degree || null,
       emergency_contact: emergency_contact || null,
@@ -59,7 +61,7 @@ const getAllStudents = async (req, res) => {
       .select(
         "student.*",
         "belt.belt_description as belt_description",
-        "degree.degree_description as degree_description"
+        "degree.degree_description as degree_description",
       )
       .leftJoin("belt", "student.belt", "belt.id_belt")
       .leftJoin("degree", "student.degree", "degree.id_degree");
@@ -98,6 +100,7 @@ const updateStudent = async (req, res) => {
     address,
     cep,
     city,
+    code,
     country,
     degree,
     emergency_contact,
@@ -120,6 +123,7 @@ const updateStudent = async (req, res) => {
         obs,
         address,
         cep,
+        code,
         city,
         country,
         degree,

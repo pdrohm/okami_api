@@ -12,13 +12,13 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use("/students", authenticateToken, studentRoutes);
+app.use("/students", studentRoutes);
 
-app.use("/training", authenticateToken, trainingRoutes);
+app.use("/training", trainingRoutes);
 
-app.use("/attendance", authenticateToken, attendanceRoutes);
+app.use("/attendance", attendanceRoutes);
 
-app.use("/auth", authRoutes);
+// app.use("/auth", authRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

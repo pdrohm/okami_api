@@ -2,6 +2,26 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const knex = require("../config/database");
 
+const generateToken = (user) => {
+  const tokenPayload = {
+    userId: user.id,
+    username: user.username,
+    email: user.email,
+    name: user.name,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+  };
+
+  return jwt.sign(tokenPayload, process.env.JWT_SECRET);
+};
+
+const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+};
+
 const registerUser = async (req, res) => {
   try {
     const { username, password, email, name } = req.body;
@@ -31,7 +51,6 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  console.log(req.body);
   try {
     const { username, password } = req.body;
     const user = await knex("users").where({ username }).first();
@@ -42,27 +61,7 @@ const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Credenciais inválidas." });
     }
-    const tokenPayload = {
-      userId: user.id,
-      username: user.username,
-      email: user.email,
-      name: user.name,
-    };
-
-    const userProfile = await knex("user_profile")
-      .where({ user_id: user.id })
-      .first();
-
-    if (userProfile) {
-      const profile = await knex("profile")
-        .where({ id: userProfile.profile_id })
-        .first();
-      tokenPayload.profile = profile;
-    }
-
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = generateToken(user);
     res.status(200).json({ token });
   } catch (error) {
     console.error("Erro durante o login do usuário:", error);
@@ -70,7 +69,36 @@ const loginUser = async (req, res) => {
   }
 };
 
+const authenticateUser = async (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticação não fornecido." });
+  }
+
+  const decodedToken = verifyToken(token);
+  if (!decodedToken) {
+    return res.status(401).json({ message: "Token de autenticação inválido." });
+  }
+
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (decodedToken.exp < currentTime) {
+    const user = await knex("users").where({ id: decodedToken.userId }).first();
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "Usuário associado ao token não encontrado." });
+    }
+    const newToken = generateToken(user);
+    res.set("Authorization", newToken);
+  }
+
+  next();
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  authenticateUser,
 };

@@ -6,7 +6,7 @@ const createTraining = async (req, res) => {
   try {
     const trainingData = {
       training_name: training_name || null,
-      modality: modality || null
+      modality: modality || null,
     };
 
     const result = await knex("training").insert(trainingData).returning("*");
@@ -30,9 +30,31 @@ const getAllTrainings = async (req, res) => {
 
 const getAttendancesByTraining = async (req, res) => {
   const { trainingId } = req.params;
+  const { date } = req.query;
+
+  console.log(`date`, date);
 
   try {
-    const attendances = await knex("attendance").select("*").where("id", trainingId);
+    let query = knex("attendance")
+      .select(
+        "attendance.*",
+        "student.name as student_name",
+        "training.training_name",
+        "belt.belt_description",
+        "degree.degree_description"
+      )
+      .leftJoin("student", "attendance.student_id", "student.id")
+      .leftJoin("training", "attendance.training_id", "training.id")
+      .leftJoin("belt", "student.belt", "belt.id_belt")
+      .leftJoin("degree", "student.degree", "degree.id_degree")
+      .where("attendance.training_id", trainingId)
+      .orderBy("attendance.checkin_time", "desc");
+
+    if (date) {
+      query = query.whereRaw(`DATE(attendance.checkin_time) = ?`, [date]);
+    }
+
+    const attendances = await query;
 
     res.json(attendances);
   } catch (error) {
@@ -43,11 +65,31 @@ const getAttendancesByTraining = async (req, res) => {
 
 const getTrainingById = async (req, res) => {
   const { id } = req.params;
+  const { checkin_date } = req.query;
+
   try {
-    const training = await knex("training").select("*").where("id", id).first();
+    let query = knex("training")
+      .select(
+        "training.*",
+        "attendance.attendance_id",
+        "attendance.student_id",
+        "attendance.checkin_time",
+        "student.name"
+      )
+      .leftJoin("attendance", "training.id", "attendance.training_id")
+      .leftJoin("student", "attendance.student_id", "student.id")
+      .where("training.id", id);
+
+    if (checkin_date) {
+      query = query.where("attendance.checkin_time", checkin_date);
+    }
+
+    const training = await query.first();
+
     if (!training) {
       return res.status(404).send("Treino não encontrado");
     }
+
     res.json(training);
   } catch (err) {
     console.error("Erro ao obter treino por ID:", err);
@@ -61,7 +103,7 @@ const updateTraining = async (req, res) => {
   try {
     const result = await knex("training")
       .where("id", id)
-      .update({ training_name, modality})
+      .update({ training_name, modality })
       .returning("*");
     if (result.length === 0) {
       return res.status(404).send("Treino não encontrado");
@@ -87,11 +129,60 @@ const deleteTraining = async (req, res) => {
   }
 };
 
+const getDaysWithTraining = async (req, res) => {
+  try {
+    const trainingDates = await knex("attendance")
+      .distinct(knex.raw("DATE(checkin_time) as date"))
+      .pluck("date");
+    res.json(trainingDates);
+  } catch (error) {
+    console.error("Erro ao obter datas com registros de treino:", error);
+    res.status(500).send("Erro ao obter datas com registros de treino");
+  }
+};
+
+const getStudentCountPerDayByModality = async (req, res) => {
+  const { month } = req.query;
+
+  try {
+    const modalities = await knex("training")
+      .distinct("modality")
+      .pluck("modality");
+
+    const modalityData = {};
+
+    for (const modality of modalities) {
+      const studentCountPerDay = await knex("attendance")
+        .select(
+          knex.raw("DATE(attendance.checkin_time) as day"),
+          knex.raw("COUNT(DISTINCT attendance.student_id) as student_count")
+        )
+        .leftJoin("training", "attendance.training_id", "training.id")
+        .where("training.modality", modality)
+        .andWhere(knex.raw("MONTH(attendance.checkin_time) = ?", [month]))
+        .groupByRaw("DATE(attendance.checkin_time)");
+
+      modalityData[modality] = studentCountPerDay;
+    }
+
+    res.json(modalityData);
+  } catch (error) {
+    console.error("Error retrieving student count per day by modality:", error);
+    res.status(500).send("Error retrieving student count per day by modality");
+  }
+};
+
+module.exports = {
+  getStudentCountPerDayByModality,
+};
+
 module.exports = {
   createTraining,
   getAllTrainings,
   getTrainingById,
   updateTraining,
   deleteTraining,
-  getAttendancesByTraining
+  getAttendancesByTraining,
+  getDaysWithTraining,
+  getStudentCountPerDayByModality,
 };
