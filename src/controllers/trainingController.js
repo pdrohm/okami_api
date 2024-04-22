@@ -142,8 +142,7 @@ const getDaysWithTraining = async (req, res) => {
 };
 
 const getStudentCountPerDayByModality = async (req, res) => {
-  const { month } = req.query;
-
+  const { month } = req.params;
   try {
     const modalities = await knex("training")
       .distinct("modality")
@@ -154,13 +153,15 @@ const getStudentCountPerDayByModality = async (req, res) => {
     for (const modality of modalities) {
       const studentCountPerDay = await knex("attendance")
         .select(
-          knex.raw("DATE(attendance.checkin_time) as day"),
-          knex.raw("COUNT(DISTINCT attendance.student_id) as student_count")
+          knex.raw("DATE_PART('day', attendance.checkin_time) as day"), // Use DATE_PART() function to extract day part
+          knex.raw("COUNT(attendance.student_id) as student_count")
         )
         .leftJoin("training", "attendance.training_id", "training.id")
         .where("training.modality", modality)
-        .andWhere(knex.raw("MONTH(attendance.checkin_time) = ?", [month]))
-        .groupByRaw("DATE(attendance.checkin_time)");
+        .andWhere(
+          knex.raw("EXTRACT(month FROM attendance.checkin_time) = ?", [month])
+        )
+        .groupByRaw("DATE_PART('day', attendance.checkin_time)"); // Group by day part
 
       modalityData[modality] = studentCountPerDay;
     }
@@ -172,9 +173,29 @@ const getStudentCountPerDayByModality = async (req, res) => {
   }
 };
 
-module.exports = {
-  getStudentCountPerDayByModality,
+const getAttendancesByStudent = async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    const attendances = await knex("attendance")
+      .select(
+        "attendance.checkin_time",
+        "training.modality",
+        "training.training_name",
+
+      )
+      .leftJoin("training", "attendance.training_id", "training.id")
+      .where("attendance.student_id", studentId)
+      .orderBy("attendance.checkin_time", "desc");
+
+    res.json(attendances);
+  } catch (error) {
+    console.error("Error retrieving attendances by student:", error);
+    res.status(500).send("Error retrieving attendances by student");
+  }
 };
+
+
 
 module.exports = {
   createTraining,
@@ -185,4 +206,5 @@ module.exports = {
   getAttendancesByTraining,
   getDaysWithTraining,
   getStudentCountPerDayByModality,
+  getAttendancesByStudent
 };

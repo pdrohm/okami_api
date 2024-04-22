@@ -22,4 +22,11 @@ router.delete("/:id", trainingController.deleteTraining);
 
 router.get("/training-days", trainingController.getDaysWithTraining);
 
+router.get(
+  "/students-count-modality/:month",
+  trainingController.getStudentCountPerDayByModality
+);
+
+router.get("/student-attendances/:studentId", trainingController.getAttendancesByStudent)
+
 module.exports = router;

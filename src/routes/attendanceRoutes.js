@@ -7,5 +7,6 @@ const attendanceController = require("../controllers/attendanceController");
 
 router.post("/check", attendanceController.checkStudent);
 router.post("/", attendanceController.markAttendance);
+router.get("/top-students", attendanceController.getTopStudentsByTraining);
 
 module.exports = router;
